@@ -2,8 +2,11 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from app.config import settings
+from app.config import settings, mask_secrets
 from app.database import Base, engine
+from app.models.agent import AgentModel
+from app.models.message import NegotiationMessageModel
+from app.models.negotiation import NegotiationModel
 from app.api import agents, negotiations, scenarios, analytics, guide
 
 # Setup logging
@@ -31,7 +34,7 @@ def init_db():
                     conn.execute(text("ALTER TABLE negotiations ADD COLUMN deadlock_info_json TEXT"))
                 conn.commit()
     except Exception as e:
-        logger.warning(f"Database schema auto-migration check notice: {e}")
+        logger.warning(f"Database schema auto-migration check notice: {mask_secrets(str(e))}")
 
 init_db()
 
@@ -70,7 +73,7 @@ def health_check():
     return {
         "status": "healthy",
         "llm_provider": settings.LLM_PROVIDER,
-        "database": settings.DATABASE_URL
+        "database": mask_secrets(settings.DATABASE_URL)
     }
 
 @app.get("/api/settings/mode")
@@ -207,10 +210,11 @@ async def list_and_test_llm_models():
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Global exception caught on {request.url}: {exc}", exc_info=True)
+    safe_err = mask_secrets(str(exc))
+    logger.error(f"Global exception caught on {request.url}: {safe_err}", exc_info=True)
     return JSONResponse(
         status_code=500,
-        content={"detail": "An internal server error occurred.", "error": str(exc)}
+        content={"detail": "An internal server error occurred.", "error": safe_err}
     )
 
 if __name__ == "__main__":

@@ -2,12 +2,20 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from app.config import settings
 
-# For SQLite, enable check_same_thread=False for multi-threaded FastAPI requests
-connect_args = {"check_same_thread": False} if settings.DATABASE_URL.startswith("sqlite") else {}
+raw_db_url = settings.DATABASE_URL.strip() if (settings.DATABASE_URL and settings.DATABASE_URL.strip()) else ""
+db_url = raw_db_url or "sqlite:///./negotiation.db"
+
+# Handle PostgreSQL connection string prefixes (e.g., Supabase postgres:// -> postgresql://)
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# SQLite specific arguments (check_same_thread=False for multi-threaded FastAPI requests)
+connect_args = {"check_same_thread": False} if db_url.startswith("sqlite") else {}
 
 engine = create_engine(
-    settings.DATABASE_URL,
+    db_url,
     connect_args=connect_args,
+    pool_pre_ping=True,
     echo=False
 )
 
@@ -21,3 +29,4 @@ def get_db():
         yield db
     finally:
         db.close()
+
