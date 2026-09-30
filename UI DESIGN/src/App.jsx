@@ -14,6 +14,7 @@ import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import AuthPage from "./pages/AuthPage";
 import LandingPage from "./pages/LandingPage.jsx";
+import GuideBot from "./components/GuideBot.jsx";
 import { useNegotiationEngine } from "./hooks/useNegotiationEngine.js";
 import { useNegotiationHistory } from "./hooks/useNegotiationHistory.js";
 
@@ -271,6 +272,9 @@ function MainAppContent() {
           {renderPage()}
         </div>
       </div>
+
+      {/* Floating AI Guide Bot & General AI Chatbot Assistant */}
+      <GuideBot currentPage={activePage} negotiationId={negotiation?.state?.negotiation_id} />
     </div>
   );
 }
