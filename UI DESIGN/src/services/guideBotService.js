@@ -59,6 +59,35 @@ export function buildGuideResponse(question, pageName = "Dashboard") {
     };
   }
 
+  // Greetings handler (good evening, hello, hi, etc.)
+  if (
+    normalized.includes("good evening") ||
+    normalized.includes("good morning") ||
+    normalized.includes("good afternoon") ||
+    normalized.includes("hello") ||
+    normalized.includes("hi") ||
+    normalized === "hey"
+  ) {
+    return {
+      message: "Hello & welcome! I am your **NegoMind AI Assistant** 🤖\n\nHow can I assist you with your negotiation strategy, agent configuration, programming, or platform rules today?",
+      suggestions: getNavigationSuggestion(pageName),
+    };
+  }
+
+  // Session explanation handler
+  if (normalized.includes("explain this negotiation") || normalized.includes("explain negotiation")) {
+    return {
+      message:
+        "### 📊 Negotiation Session Overview\n" +
+        "In NegoMind AI, negotiations progress through turn-by-turn counteroffers between AI agents (such as Buyer and Vendor).\n\n" +
+        "1. **Agent Objectives**: Each agent aims to optimize its target position while respecting strict min/max price limits.\n" +
+        "2. **Concession Control**: The backend monitors concession velocity to ensure agents move gradually toward convergence.\n" +
+        "3. **ZOPA**: Deals settle when offers overlap within the Zone of Possible Agreement.\n\n" +
+        "You can inspect live turn positions or start a new simulation run anytime!",
+      suggestions: ["What is ZOPA?", "Explain concession tracking", "Configure Agents →"],
+    };
+  }
+
   if (intent === "page") {
     const pageSummary = `You are on ${pageContext.title}. ${pageContext.purpose}`;
     const sections = pageContext.sections?.map((item, index) => `${index + 1}. ${item}`).join("\n") ?? "";

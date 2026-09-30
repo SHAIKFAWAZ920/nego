@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { sendChatMessage, deleteConversation } from "../services/api.js";
-import { getContextualQuickQuestions } from "../services/guideBotService.js";
+import { getContextualQuickQuestions, buildGuideResponse } from "../services/guideBotService.js";
 
 const STORAGE_KEY = "negomind-ai-chatbot-state";
 
@@ -99,24 +99,52 @@ export function useGuideBot(currentPage = "Dashboard", negotiationId = null) {
           `Page Context: ${currentPage}`
         );
 
-        if (response && response.conversation_id) {
-          setConversationId(response.conversation_id);
+        if (response && response.message) {
+          if (response.conversation_id) {
+            setConversationId(response.conversation_id);
+          }
+
+          const botMsg = {
+            id: `bot-${Date.now()}`,
+            sender: "bot",
+            text: response.message,
+            timestamp: new Date().toISOString(),
+            provider: response.provider || "gemini",
+            model: response.model || ""
+          };
+
+          setMessages((prev) => [...prev, botMsg]);
+          setError(null);
+          return;
         }
 
+        // Intelligent Client Fallback Response if response from API is null
+        const fallbackRes = buildGuideResponse(question, currentPage);
         const botMsg = {
           id: `bot-${Date.now()}`,
           sender: "bot",
-          text: response.message || "I apologize, but I could not process your query.",
+          text: fallbackRes.message || "Hello! I am your NegoMind AI Assistant. How can I help you today?",
           timestamp: new Date().toISOString(),
-          provider: response.provider || "gemini",
-          model: response.model || ""
+          provider: "fallback",
+          model: "rule-engine-v1"
         };
 
         setMessages((prev) => [...prev, botMsg]);
+        setError(null);
       } catch (err) {
-        console.error("Chat API error:", err);
-        setError("AI service is temporarily unavailable. Please try again.");
-        setLastFailedPrompt(question);
+        console.warn("Chat API error, proceeding to intelligent fallback:", err);
+        const fallbackRes = buildGuideResponse(question, currentPage);
+        const botMsg = {
+          id: `bot-${Date.now()}`,
+          sender: "bot",
+          text: fallbackRes.message || "Hello! I am your NegoMind AI Assistant. How can I help you today?",
+          timestamp: new Date().toISOString(),
+          provider: "fallback",
+          model: "rule-engine-v1"
+        };
+
+        setMessages((prev) => [...prev, botMsg]);
+        setError(null);
       } finally {
         setIsLoading(false);
       }

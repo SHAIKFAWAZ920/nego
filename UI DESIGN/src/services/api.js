@@ -172,21 +172,24 @@ export async function sendChatMessage(message, conversationId = null, negotiatio
     context
   };
 
-  const response = await fetch(`${API_BASE_URL}/chat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getAuthHeaders()
-    },
-    body: JSON.stringify(payload)
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeaders()
+      },
+      body: JSON.stringify(payload)
+    });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`Chat API error (${response.status}): ${errText}`);
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (err) {
+    console.warn("Backend chat endpoint fetch error, proceeding to intelligent fallback:", err);
   }
 
-  return await response.json();
+  return null;
 }
 
 /**
