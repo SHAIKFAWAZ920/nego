@@ -22,7 +22,7 @@ export default function GuideMessage({ message, isUser = false, timestamp = "", 
         {timestamp && <span>{formatTime(timestamp)}</span>}
         {!isUser && provider && (
           <span className="rounded bg-[#0c2333] px-1.5 py-0.2 font-mono text-[9px] uppercase tracking-wider text-[#7dd3fc] border border-[#1b3b52]">
-            {provider === "gemini" ? `Gemini AI` : `Fallback Engine`}
+            {provider === "gemini" ? `Gemini AI (${model || "3.5-flash"})` : `Fallback Engine`}
           </span>
         )}
       </div>

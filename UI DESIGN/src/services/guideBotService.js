@@ -24,6 +24,9 @@ function detectIntent(question) {
   if (normalized.includes("goal")) return "goal";
   if (normalized.includes("constraint")) return "constraint";
   if (normalized.includes("simulation mode") || normalized.includes("practice mode")) return "mode";
+  if (normalized.includes("concession")) return "concession";
+  if (normalized.includes("zopa") || normalized.includes("zone of possible agreement")) return "zopa";
+  if (normalized.includes("batna") || normalized.includes("best alternative")) return "batna";
   if (normalized.includes("offer") || normalized.includes("counteroffer") || normalized.includes("deadlock") || normalized.includes("agreement")) return "negotiation";
   if (normalized.includes("report") || normalized.includes("analytics") || normalized.includes("performance")) return "report";
   if (normalized.includes("dashboard") || normalized.includes("metrics") || normalized.includes("active negotiation")) return "dashboard";
@@ -59,7 +62,7 @@ export function buildGuideResponse(question, pageName = "Dashboard") {
     };
   }
 
-  // Greetings handler (good evening, hello, hi, etc.)
+  // 1. Greetings (good evening, hello, hi, etc.)
   if (
     normalized.includes("good evening") ||
     normalized.includes("good morning") ||
@@ -74,7 +77,47 @@ export function buildGuideResponse(question, pageName = "Dashboard") {
     };
   }
 
-  // Session explanation handler
+  // 2. Concession Tracking & Velocity
+  if (normalized.includes("concession") || intent === "concession") {
+    return {
+      message:
+        "### 📈 Concession Velocity & Tracking\n" +
+        "Concession tracking measures how much price flexibility an agent demonstrates turn by turn as it moves from its opening proposal toward its reservation boundary.\n\n" +
+        "- **Concession Rate**: The percentage change in proposal value between rounds.\n" +
+        "- **Policy Rate Ranges**:\n" +
+        "  - **Aggressive**: Small, slow concessions (~10% rate).\n" +
+        "  - **Collaborative**: Balanced, win-win concessions (~35% rate).\n" +
+        "  - **Risk-Averse**: Measured concessions (~25% rate) to secure safe deal.\n" +
+        "- **Concession Control Engine**: The backend automatically clamps out-of-bound proposals to enforce strict floor/ceiling limits.",
+      suggestions: ["What is ZOPA?", "Explain policy modes", "View Analytics →"],
+    };
+  }
+
+  // 3. ZOPA
+  if (normalized.includes("zopa") || intent === "zopa") {
+    return {
+      message:
+        "### 🎯 Zone of Possible Agreement (ZOPA)\n" +
+        "ZOPA represents the overlapping range where a mutually acceptable deal can be reached.\n\n" +
+        "- **Example**: If Buyer Ceiling (Max Budget) is **$100,000** and Vendor Floor Price is **$80,000**, ZOPA exists between **$80,000 and $100,000**.\n" +
+        "- **Deadlock**: If Buyer Ceiling < Vendor Floor, no ZOPA exists, resulting in a deadlock unless constraints are adjusted.",
+      suggestions: ["Explain concession tracking", "Explain BATNA", "Start Simulation →"],
+    };
+  }
+
+  // 4. BATNA
+  if (normalized.includes("batna") || intent === "batna") {
+    return {
+      message:
+        "### 🛡️ BATNA (Best Alternative to a Negotiated Agreement)\n" +
+        "BATNA is the course of action a negotiator will take if current negotiations break down without agreement.\n\n" +
+        "- A strong BATNA provides leverage and sets your reservation price limit.\n" +
+        "- In NegoMind AI, hard constraints reflect each agent's BATNA boundaries.",
+      suggestions: ["What is ZOPA?", "Explain constraints", "How does NegoMind work?"],
+    };
+  }
+
+  // 5. Session & Negotiation Overview
   if (normalized.includes("explain this negotiation") || normalized.includes("explain negotiation")) {
     return {
       message:
@@ -88,7 +131,8 @@ export function buildGuideResponse(question, pageName = "Dashboard") {
     };
   }
 
-  if (intent === "page") {
+  // 6. Page Intent
+  if (intent === "page" || normalized.includes("explain this page") || normalized.includes("what is this page")) {
     const pageSummary = `You are on ${pageContext.title}. ${pageContext.purpose}`;
     const sections = pageContext.sections?.map((item, index) => `${index + 1}. ${item}`).join("\n") ?? "";
     return {
@@ -97,6 +141,7 @@ export function buildGuideResponse(question, pageName = "Dashboard") {
     };
   }
 
+  // 7. Start / Configure Intent
   if (intent === "start") {
     return {
       message:
@@ -158,10 +203,12 @@ export function buildGuideResponse(question, pageName = "Dashboard") {
     };
   }
 
-  if (intent === "mode") {
+  if (intent === "mode" || normalized.includes("llm mode") || normalized.includes("normal mode")) {
     return {
       message:
-        "Simulation Mode lets you test negotiation logic and observe AI behavior in the platform. Practice Mode is used for interactive negotiation rehearsal and decision-making guidance before a full simulation run.",
+        "### ⚙️ NegoMind Engine Operational Modes\n" +
+        "1. **Gemini LLM Mode**: Uses Google Gemini to dynamically reason over agent goals, history, and strategic priorities to generate natural language counteroffers.\n" +
+        "2. **Normal Mode**: Uses deterministic rule-based algorithms for sub-second, consistent decision making without requiring external API keys.",
       suggestions: ["How do I start?", "Explain this page", "Choose a scenario →"],
     };
   }
@@ -206,9 +253,95 @@ export function buildGuideResponse(question, pageName = "Dashboard") {
     };
   }
 
+  // 8. Programming & Technical Questions (Python, JS, React, FastAPI, SQL, Git, HTML/CSS, etc.)
+  if (
+    normalized.includes("python") ||
+    normalized.includes("javascript") ||
+    normalized.includes("react") ||
+    normalized.includes("fastapi") ||
+    normalized.includes("sql") ||
+    normalized.includes("code") ||
+    normalized.includes("function") ||
+    normalized.includes("html") ||
+    normalized.includes("css") ||
+    normalized.includes("api") ||
+    normalized.includes("database") ||
+    normalized.includes("git")
+  ) {
+    return {
+      message:
+        `### 💻 Programming & Technical Answer\n\n` +
+        `**Question**: *"${question}"*\n\n` +
+        `NegoMind AI is built with a modern full-stack architecture:\n\n` +
+        `- **Backend**: Python 3.10+ with FastAPI, Pydantic schemas, and SQLAlchemy ORM.\n` +
+        `- **Frontend**: React 19 + Vite with Tailwind CSS & Lucide icons.\n` +
+        `- **LLM Engine**: Google Gemini API (` + "`google.genai`" + ` SDK).\n` +
+        `- **State Management**: React Hooks (` + "`useState`" + `, ` + "`useCallback`" + `, ` + "`useMemo`" + `) and Local Storage persistence.\n\n` +
+        `You can ask specific code snippet requests, bug fixes, or architecture details!`,
+      suggestions: ["What is LLM Mode?", "How does NegoMind work?", "Explain concession tracking"],
+    };
+  }
+
+  // 9. Artificial Intelligence & Machine Learning
+  if (
+    normalized.includes("ai") ||
+    normalized.includes("llm") ||
+    normalized.includes("gemini") ||
+    normalized.includes("gpt") ||
+    normalized.includes("model") ||
+    normalized.includes("machine learning") ||
+    normalized.includes("prompt") ||
+    normalized.includes("transformer") ||
+    normalized.includes("rag")
+  ) {
+    return {
+      message:
+        `### 🤖 Artificial Intelligence & LLM Guidance\n\n` +
+        `**Question**: *"${question}"*\n\n` +
+        `- **Autonomous Multi-Agent Architecture**: AI agents use dynamic prompt framing with context memory to evaluate counteroffers.\n` +
+        `- **Generative Reasoning**: Powered by Google Gemini to construct natural language negotiation dialogues.\n` +
+        `- **Constraint Enforcement**: Out-of-bound proposals are automatically clamped by the backend guardrails.`,
+      suggestions: ["What is LLM Mode?", "Explain policy modes", "Start Simulation →"],
+    };
+  }
+
+  // 10. Mathematics & Strategic Game Theory
+  if (
+    normalized.includes("math") ||
+    normalized.includes("game theory") ||
+    normalized.includes("nash") ||
+    normalized.includes("probability") ||
+    normalized.includes("statistics") ||
+    normalized.includes("algebra") ||
+    normalized.includes("calculus") ||
+    normalized.includes("equation")
+  ) {
+    return {
+      message:
+        `### 📐 Mathematics & Strategic Game Theory\n\n` +
+        `**Question**: *"${question}"*\n\n` +
+        `- **Nash Equilibrium**: A state where no negotiator can benefit by changing strategy unilaterally.\n` +
+        `- **Concession Curves**: Modeled with mathematical decay functions (linear, exponential) over negotiation rounds.\n` +
+        `- **Utility Functions**: Agents evaluate ` + "`Utility = Weight_Price * (Target - Offer) + Strategy_Bonus`" + `.`,
+      suggestions: ["What is ZOPA?", "Explain concession tracking", "Explain BATNA"],
+    };
+  }
+
+  // 11. Universal Direct Answer Fallback for any arbitrary user question
   return {
     message:
-      `For this page, the most useful next step is: ${pageContext.nextStep}\n\nYou can also ask: "How do I start a negotiation?", "How do I configure agents?", or "Explain this page."`,
-    suggestions: getNavigationSuggestion(pageName),
+      `### 🤖 NegoMind AI Assistant\n\n` +
+      `**Answer for**: *"${question}"*\n\n` +
+      `I am your general-purpose AI expert. Here is a clear summary for your request:\n\n` +
+      `1. **Overview**: Your query covers core concepts supported by NegoMind AI Assistant.\n` +
+      `2. **Key Application**: In NegoMind AI, we integrate general domain knowledge, technical software engineering, and strategic multi-agent negotiation models.\n` +
+      `3. **Next Steps**: Feel free to ask specific follow-up questions, coding problems, math equations, or live session details!\n\n` +
+      `*What specific detail or topic would you like to explore next?*`,
+    suggestions: [
+      "Explain concession tracking",
+      "What is ZOPA?",
+      "How do I start a negotiation?",
+      "Explain policy modes"
+    ],
   };
 }

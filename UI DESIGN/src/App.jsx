@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import CinematicLoader from "./components/CinematicLoader";
 import TopNavigation from "./components/TopNavigation";
 import Sidebar from "./components/Sidebar";
-import AuthModal from "./components/AuthModal";
 import OAuthCallbackHandler from "./components/OAuthCallbackHandler";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 

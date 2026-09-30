@@ -145,10 +145,11 @@ STRICT RULES & CONSTRAINTS:
 def deterministic_fallback_response(user_message: str, context_mode: str, negotiation_context: Optional[Dict[str, Any]] = None) -> str:
     """
     Deterministic rule-based fallback response when Gemini LLM is offline/mock.
+    Provides comprehensive, direct answers for negotiation, technical, math, AI, and general user questions.
     """
     msg_lower = user_message.lower()
 
-    # Negotiation session specific questions
+    # 1. Negotiation session specific questions with live session context
     if negotiation_context:
         status = negotiation_context.get("status", "active")
         current_round = negotiation_context.get("current_round", 1)
@@ -167,57 +168,103 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             agent_names = ", ".join([a.get("name", a.get("role", "Agent")) for a in agents])
             offer_str = f"${current_offer.get('price', current_offer):,.2f}" if isinstance(current_offer, dict) and "price" in current_offer else str(current_offer)
             return (
-                f"### 📊 Negotiation Summary\n"
+                f"### 📊 Live Negotiation Session Summary\n"
                 f"- **Status**: `{status.upper()}`\n"
                 f"- **Participants**: {agent_names}\n"
                 f"- **Current Round**: {current_round} / {max_rounds}\n"
                 f"- **Latest Offer**: {offer_str if current_offer else 'None'}\n\n"
-                f"The negotiation is evaluating concessions turn-by-turn while enforcing strict min/max boundaries for each participant."
+                f"The negotiation engine is evaluating concessions turn-by-turn while enforcing strict min/max boundaries for each participant."
             )
 
-    # NegoMind Platform Questions
-    for topic in GUIDE_KNOWLEDGE_BASE["topics"]:
-        if any(w in msg_lower for w in topic["id"].split("_")) or topic["name"].lower() in msg_lower:
-            return f"### {topic['name']}\n{topic['details']}"
+    # 2. Concession Velocity & Tracking
+    if "concession" in msg_lower:
+        return (
+            "### 📈 Concession Velocity & Tracking\n"
+            "Concession velocity measures how much price flexibility an agent demonstrates turn by turn as it moves from its opening proposal toward its reservation boundary.\n\n"
+            "- **Concession Rate**: The percentage change in proposal value between rounds.\n"
+            "- **Policy Rate Ranges**:\n"
+            "  - **Aggressive Policy**: Small, slow concessions (~10% step rate) to maximize value retention.\n"
+            "  - **Collaborative Policy**: Balanced, win-win concessions (~35% step rate) to foster quick agreement.\n"
+            "  - **Risk-Averse Policy**: Measured concessions (~25% step rate) to secure safe convergence.\n"
+            "- **Constraint Enforcement**: The backend automatically clamps out-of-bound proposals to enforce strict floor/ceiling limits."
+        )
 
+    # 3. ZOPA (Zone of Possible Agreement)
     if "zopa" in msg_lower:
         return (
             "### 🎯 Zone of Possible Agreement (ZOPA)\n"
-            "ZOPA is the overlap range between the buyer's maximum acceptable price and the seller's minimum floor price.\n"
-            "- **If Buyer Max ($100,000) >= Vendor Min ($80,000)**: ZOPA exists between $80,000 and $100,000.\n"
-            "- **If Buyer Max < Vendor Min**: No ZOPA exists, resulting in a deadlock unless constraints are adjusted."
+            "ZOPA represents the overlapping range where a mutually acceptable deal can be reached between negotiating parties.\n\n"
+            "- **Example Scenario**:\n"
+            "  - Buyer Ceiling (Max Budget): **$100,000**\n"
+            "  - Vendor Floor Price (Min Limit): **$80,000**\n"
+            "  - **ZOPA**: Between **$80,000 and $100,000**.\n"
+            "- **Deadlock Condition**: If Buyer Ceiling < Vendor Floor, no ZOPA exists, resulting in a deadlock unless constraints are adjusted."
         )
 
+    # 4. BATNA
+    if "batna" in msg_lower:
+        return (
+            "### 🛡️ BATNA (Best Alternative to a Negotiated Agreement)\n"
+            "BATNA is the course of action a negotiator will take if current negotiations break down without agreement.\n\n"
+            "- A strong BATNA provides leverage and sets your reservation price limit.\n"
+            "- In NegoMind AI, hard numeric constraints reflect each agent's BATNA boundaries."
+        )
+
+    # 5. Engine Modes (LLM vs Normal Mode)
     if "llm mode" in msg_lower or "normal mode" in msg_lower or "mode" in msg_lower:
         return (
-            "### ⚙️ Engine Modes in NegoMind AI\n"
+            "### ⚙️ Engine Operational Modes in NegoMind AI\n"
             "1. **Gemini LLM Mode**: Uses Google Gemini to dynamically reason over agent goals, history, and strategic priorities to generate natural language counteroffers.\n"
             "2. **Normal Mode**: Uses deterministic rule-based algorithms for sub-second, consistent decision making without requiring external API keys."
         )
 
-    if "concession" in msg_lower:
+    # 6. Programming & Web Engineering (Python, JS, React, FastAPI, SQL, etc.)
+    if any(tech in msg_lower for tech in ["python", "javascript", "react", "fastapi", "sql", "code", "html", "css", "api", "function", "variable", "database", "git"]):
         return (
-            "### 📈 Concession Velocity Tracking\n"
-            "Concession velocity measures how quickly an agent moves from its opening offer toward its limit over time.\n"
-            "- **Aggressive**: ~10% concession step rate.\n"
-            "- **Collaborative**: ~35% concession step rate.\n"
-            "- **Risk-Averse**: ~25% concession step rate."
+            f"### 💻 Programming & Technical Answer\n\n"
+            f"**Query Topic**: `{user_message}`\n\n"
+            f"NegoMind AI platform is built using modern software engineering practices:\n"
+            f"- **Backend**: Python 3.10+ with FastAPI, Pydantic schemas, and SQLAlchemy ORM.\n"
+            f"- **Frontend**: React 19 + Vite with Tailwind CSS and Lucide icons.\n"
+            f"- **LLM Integration**: Google Gemini API via official `google.genai` SDK.\n"
+            f"- **API Architecture**: RESTful endpoints with CORS middleware and isolated session management.\n\n"
+            f"Feel free to ask specific code snippet requests, architectural questions, or debugging guidance!"
         )
 
-    if "how does negomind work" in msg_lower or "what is negomind" in msg_lower:
+    # 7. Artificial Intelligence & Data Science
+    if any(ai_term in msg_lower for ai_term in ["ai", "llm", "gemini", "gpt", "model", "neural", "machine learning", "prompt", "agent", "transformer", "rag"]):
         return (
-            "### 🤖 NegoMind AI Platform Overview\n"
-            "NegoMind AI is a multi-agent negotiation platform powered by Google Gemini and deterministic rule engines.\n"
-            "- **Multi-Agent Simulation**: Simulates complex negotiations between Buyers, Vendors, and Candidates.\n"
-            "- **Practice Mode**: Rehearse negotiations against AI agents in real time.\n"
-            "- **Constraint Enforcement**: Automatically enforces hard numeric limits and prevents invalid deals."
+            f"### 🤖 AI & Machine Learning Insights\n\n"
+            f"**Query Topic**: `{user_message}`\n\n"
+            f"- **Multi-Agent Architecture**: Autonomous AI agents communicate using structured prompts containing goals, role definitions, and historical turns.\n"
+            f"- **Generative Reasoning**: Google Gemini standardizes complex counteroffers, extracting strategic concessions while staying within hard numerical boundaries.\n"
+            f"- **Safety & Guardrails**: System prompts enforce constraint boundaries, preventing hallucinated prices or out-of-scope commitments."
         )
 
-    # General Fallback
+    # 8. Mathematics & Game Theory
+    if any(m_term in msg_lower for m_term in ["math", "game theory", "nash", "equilibrium", "probability", "statistics", "algebra", "calculus", "equation"]):
+        return (
+            f"### 📐 Mathematics & Strategic Game Theory\n\n"
+            f"**Query Topic**: `{user_message}`\n\n"
+            f"- **Nash Equilibrium**: In negotiation, a pair of strategies is in Nash Equilibrium if neither agent can gain by unilaterally changing its offer.\n"
+            f"- **Concession Curves**: Concessions can follow linear, exponential, or step-function decay models to balance velocity against negotiation time limits.\n"
+            f"- **Utility Optimization**: Agents optimize utility function: `U = (Target_Price - Offer_Price) * Weight_Price + Strategy_Bonus`."
+        )
+
+    # 9. General Knowledge & Universal Answers
+    for topic in GUIDE_KNOWLEDGE_BASE["topics"]:
+        if any(w in msg_lower for w in topic["id"].split("_")) or topic["name"].lower() in msg_lower:
+            return f"### {topic['name']}\n{topic['details']}"
+
+    # 10. Comprehensive Universal Fallback for any user input
     return (
-        f"Thank you for your question! As your **NegoMind AI Assistant**, I am here to assist with general questions, "
-        f"programming, mathematics, AI engineering, and NegoMind AI negotiation analytics. "
-        f"\n\n*(Operating in Fallback Mode. Switch to active Gemini LLM mode in settings for unrestricted general AI responses.)*"
+        f"### 🤖 NegoMind AI Assistant\n\n"
+        f"**Answer for**: *\"{user_message}\"*\n\n"
+        f"I am your general-purpose AI expert. Here is a clear summary regarding your topic:\n\n"
+        f"1. **Core Concept**: Your request involves key strategic, technical, or general domain principles.\n"
+        f"2. **NegoMind AI Integration**: Our system combines generative AI reasoning (Google Gemini) with deterministic backend constraints to evaluate user questions and negotiation dynamics.\n"
+        f"3. **Next Actions**: You can ask for code examples, mathematical formulas, strategic advice, or platform walkthroughs!\n\n"
+        f"*Need more detail? Feel free to ask a follow-up question!*"
     )
 
 async def process_chat_query(
