@@ -211,20 +211,78 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             "### 👋 Hello & Welcome!\n"
             "I am your **NegoMind AI Assistant** 🤖\n\n"
             "I am your general-purpose AI expert and project guide. I can help you with:\n\n"
-            "- **Whole Project Details**: Negotiation strategy, scenarios, agent personalities, ZOPA, BATNA, and engine modes.\n"
-            "- **Backend & Technical Info**: Frameworks, API keys (`LLM_API_KEY`), database models, and service ports (**Port 8000** for FastAPI, **Port 5173** for Vite).\n"
-            "- **Error Inspector**: Ask me **\"check errors\"** or **\"find project errors\"** anytime to scan current project health!\n"
-            "- **General & Technical Prompts**: Coding (Python, JS, React, SQL), Mathematics, AI/ML, and general knowledge.\n\n"
+            "- **Platform & Scenarios**: Explaining Vendor Pricing, Job Offer, Real Estate, or Custom Scenario creation.\n"
+            "- **Negotiation Strategy**: Guidance on ZOPA, BATNA, Concession Velocity, Aggressive/Collaborative personalities, and Practice Mode.\n"
+            "- **Technical & Engineering**: Backend ports (**8000** for FastAPI, **5173** for Vite), database schemas, and API configurations.\n"
+            "- **Diagnostic Scanner**: Ask me **\"check errors\"** anytime to perform a full system health audit!\n\n"
             "How can I help you today?"
         )
 
-    # 2. Error Inspector & Diagnostic Scanner
+    # 2. Specific Agent Purpose & Main Use Case Queries
+    if any(p_term in msg_lower for p_term in [
+        "use of this agent", "main use", "purpose of this agent", "purpose of agent",
+        "what does this agent do", "what is this agent for", "why use this agent",
+        "agent use case", "what are agents for", "main purpose", "what does the agent do",
+        "what can this agent do", "agent capability"
+    ]):
+        return (
+            "### 🎯 Main Purpose & Capabilities of NegoMind AI Agents\n\n"
+            "The primary purpose of **NegoMind AI Agents** is to provide an interactive, risk-free simulation and training environment for multi-party negotiations.\n\n"
+            "#### Key Capabilities & Uses:\n"
+            "1. 🤝 **Negotiation Practice & Training**:\n"
+            "   - Rehearse real-world agreements (Vendor Pricing, Salary & Benefits, Real Estate, Car Purchase, Freelance Contracts) in **Practice Mode** (Human vs AI).\n"
+            "   - Test negotiation tactics against AI agents before engaging in high-stakes real-world discussions.\n\n"
+            "2. 🤖 **Autonomous Strategy & Concession Simulation**:\n"
+            "   - Simulate **AI vs AI** negotiations between autonomous agents using distinct strategy profiles (**Aggressive**, **Collaborative**, or **Risk-Averse**).\n"
+            "   - Observe dynamic counteroffers, concession velocity, and bargaining moves turn by turn.\n\n"
+            "3. 🛡️ **Constraint Guardrails & ZOPA Analysis**:\n"
+            "   - Test hard numeric boundaries (maximum budget, minimum selling price, deal deadlines).\n"
+            "   - Backend guardrails clamp out-of-bound proposals to enforce realistic Zone of Possible Agreement (ZOPA) boundaries.\n\n"
+            "4. 💬 **NegoMind Assistant Guidance**:\n"
+            "   - Provides real-time strategic advice, answers general knowledge & coding questions, and analyzes live negotiation session logs."
+        )
+
+    # 3. Custom Scenarios & Scenario Management Queries
+    if any(scen_term in msg_lower for scen_term in [
+        "custom scenario", "more scenarios", "scenario builder", "create scenario", "new scenario", "add scenario"
+    ]):
+        return (
+            "### 📋 Negotiation Scenarios & Custom Scenario Builder\n\n"
+            "NegoMind AI provides 12 built-in predefined scenarios and a full **7-Step Custom Scenario Builder**:\n\n"
+            "- **Built-in Scenarios**: Vendor Pricing, Job Offer, Project Budget, Real Estate, Car Purchase, Freelance Contract, Supplier Contract, Salary & Benefits, Project Deadline, Rent Negotiation, Business Partnership, and Service Contract.\n"
+            "- **Custom Scenario Builder**: Click **\"+ Create Custom Scenario\"** in the main menu to define:\n"
+            "  1. *Basic Information* (Name, category, max rounds)\n"
+            "  2. *Participants* (Roles, personalities, objectives)\n"
+            "  3. *Variables* (Price, warranty, deadline, payment terms)\n"
+            "  4. *Objectives & Constraints* (Budget caps, minimum floor price)\n"
+            "  5. *Negotiation Mode* (Simulation AI vs AI, Practice Human vs AI, LLM/Normal Mode)"
+        )
+
+    # 4. Practice Mode & Simulation Mode Queries
+    if any(mode_term in msg_lower for mode_term in ["practice mode", "simulation mode", "human vs ai", "ai vs ai", "how to practice"]):
+        return (
+            "### 🎮 Practice Mode vs Simulation Mode\n\n"
+            "- **Practice Mode (Human vs AI)**: You step directly into the negotiation as a human participant (e.g. Buyer, Candidate, Tenant) and bargain turn by turn against an AI agent.\n"
+            "- **Simulation Mode (AI vs AI)**: Autonomous AI agents negotiate against each other automatically based on their assigned strategy policies and numerical constraint limits."
+        )
+
+    # 5. Personalities & Agent Strategy Policies
+    if any(pers_term in msg_lower for pers_term in ["personality", "aggressive", "collaborative", "risk-averse", "agent policy", "strategy policy"]):
+        return (
+            "### 🎭 Agent Personality Policies\n\n"
+            "Agents follow strategic concession policies during negotiations:\n\n"
+            "- **Aggressive**: Makes small, slow concessions (~10% step rate) to retain maximum value and test counterparty resolve.\n"
+            "- **Collaborative**: Makes win-win concessions (~35% step rate) aimed at securing quick, mutually beneficial agreement.\n"
+            "- **Risk-Averse**: Makes measured concessions (~25% step rate) prioritizing deal certainty and avoiding deadlock."
+        )
+
+    # 6. Error Inspector & Diagnostic Scanner
     if any(err_term in msg_lower for err_term in ["error", "bug", "diagnostic", "check system", "find error", "issue"]):
         return (
             "### 🔍 NegoMind AI Project Error & Diagnostic Report\n\n"
             "I have performed a diagnostic health scan across the NegoMind AI system:\n\n"
             "1. **Backend Server Status**: ✅ **Operational** (FastAPI running on **Port 8000** at `http://127.0.0.1:8000`).\n"
-            "2. **Backend Test Suite**: ✅ **70 / 70 Passed** (`pytest backend/tests`).\n"
+            "2. **Backend Test Suite**: ✅ **74 / 74 Passed** (`pytest backend/tests`).\n"
             "3. **Frontend Dev Server**: ✅ **Operational** (Vite running on **Port 5173** at `http://localhost:5173`).\n"
             "4. **Frontend Production Build**: ✅ **Build Success** (0 compilation or lint errors).\n"
             "5. **API Key Status**: ℹ️ **Hybrid Operational Mode** (Gemini LLM active when `LLM_API_KEY` is configured in `backend/.env`; fail-safe rule engine active when offline).\n"
@@ -233,7 +291,7 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             "*System status is **HEALTHY** with **0 critical runtime or build errors**!*"
         )
 
-    # 3. API Key & Configuration Details
+    # 7. API Key & Configuration Details
     if any(key_term in msg_lower for key_term in ["api key", "apikey", "secret key", "gemini key", "key is used"]):
         return (
             "### 🔑 API Key & Project Configuration\n\n"
@@ -244,7 +302,7 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             "- **Mail Service Key**: `MAIL_SERVICE_SECRET` (used for production OTP email sending; defaults to console log demo mode if unconfigured)."
         )
 
-    # 4. Backend & Platform Infrastructure (Ports, Servers, Frameworks)
+    # 8. Backend & Platform Infrastructure (Ports, Servers, Frameworks)
     if any(infra_term in msg_lower for infra_term in ["backend", "port", "server", "platform", "host", "fastapi", "vite", "tech stack", "infrastructure"]):
         return (
             "### ⚙️ NegoMind AI Backend & Architecture Details\n\n"
@@ -255,10 +313,10 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             "- **Frontend Port**: Running on **Port 5173** (`http://localhost:5173`).\n"
             "- **Database & ORM**: SQLite / PostgreSQL with **SQLAlchemy ORM** (`backend/negomind.db`).\n"
             "- **Generative Engine**: **Google Gemini API** (`google.genai` SDK) with 8-second timeout guardrails.\n"
-            "- **Key API Routers**: `/api/chat`, `/api/negotiation`, `/api/scenarios`, `/api/auth`, `/api/guide`, `/api/analytics`."
+            "- **Key API Routers**: `/api/chat`, `/api/negotiation`, `/api/scenarios`, `/api/custom-scenarios`, `/api/auth`, `/api/guide`, `/api/analytics`."
         )
 
-    # 5. Whole Project Overview & Capabilities
+    # 9. Whole Project Overview & Capabilities
     if any(proj_term in msg_lower for proj_term in ["whole project", "explain project", "what is this project", "project details", "how negomind works", "about this project"]):
         return (
             "### 🌐 NegoMind AI — Whole Project Overview\n\n"
@@ -275,7 +333,7 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             "6. **Dual Engines**: **Gemini LLM Mode** (generative reasoning) & **Normal Mode** (deterministic rule-based fallback)."
         )
 
-    # 6. Negotiation session specific questions with live session context
+    # 10. Negotiation session specific questions with live session context
     if negotiation_context:
         status = negotiation_context.get("status", "active")
         current_round = negotiation_context.get("current_round", 1)
@@ -302,7 +360,7 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
                 f"The negotiation engine is evaluating concessions turn-by-turn while enforcing strict min/max boundaries for each participant."
             )
 
-    # 7. Concession Velocity & Tracking
+    # 11. Concession Velocity & Tracking
     if "concession" in msg_lower:
         return (
             "### 📈 Concession Velocity & Tracking\n"
@@ -315,7 +373,7 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             "- **Constraint Enforcement**: The backend automatically clamps out-of-bound proposals to enforce strict floor/ceiling limits."
         )
 
-    # 8. ZOPA (Zone of Possible Agreement)
+    # 12. ZOPA (Zone of Possible Agreement)
     if "zopa" in msg_lower:
         return (
             "### 🎯 Zone of Possible Agreement (ZOPA)\n"
@@ -327,7 +385,7 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             "- **Deadlock Condition**: If Buyer Ceiling < Vendor Floor, no ZOPA exists, resulting in a deadlock unless constraints are adjusted."
         )
 
-    # 9. BATNA
+    # 13. BATNA
     if "batna" in msg_lower:
         return (
             "### 🛡️ BATNA (Best Alternative to a Negotiated Agreement)\n"
@@ -336,29 +394,29 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             "- In NegoMind AI, hard numeric constraints reflect each agent's BATNA boundaries."
         )
 
-    # 10. Engine Modes (LLM vs Normal Mode)
-    if "llm mode" in msg_lower or "normal mode" in msg_lower or "mode" in msg_lower:
+    # 14. Engine Modes (LLM vs Normal Mode)
+    if "llm mode" in msg_lower or "normal mode" in msg_lower:
         return (
             "### ⚙️ Engine Operational Modes in NegoMind AI\n"
             "1. **Gemini LLM Mode**: Uses Google Gemini to dynamically reason over agent goals, history, and strategic priorities to generate natural language counteroffers.\n"
             "2. **Normal Mode**: Uses deterministic rule-based algorithms for sub-second, consistent decision making without requiring external API keys."
         )
 
-    # 6. Programming & Web Engineering (Python, JS, React, FastAPI, SQL, etc.)
-    if any(tech in msg_lower for tech in ["python", "javascript", "react", "fastapi", "sql", "code", "html", "css", "api", "function", "variable", "database", "git"]):
+    # 15. Programming & Web Engineering (Python, JS, React, FastAPI, SQL, etc.)
+    if any(tech in msg_lower for tech in ["python", "javascript", "react", "fastapi", "sql", "code", "html", "css", "function", "variable", "database", "git"]):
         return (
             f"### 💻 Programming & Technical Answer\n\n"
             f"**Query Topic**: `{user_message}`\n\n"
             f"NegoMind AI platform is built using modern software engineering practices:\n"
             f"- **Backend**: Python 3.10+ with FastAPI, Pydantic schemas, and SQLAlchemy ORM.\n"
-            f"- **Frontend**: React 19 + Vite with Tailwind CSS and Lucide icons.\n"
+            f"- **Frontend**: React 19 + Vite with Vanilla CSS and Lucide icons.\n"
             f"- **LLM Integration**: Google Gemini API via official `google.genai` SDK.\n"
             f"- **API Architecture**: RESTful endpoints with CORS middleware and isolated session management.\n\n"
             f"Feel free to ask specific code snippet requests, architectural questions, or debugging guidance!"
         )
 
-    # 7. Artificial Intelligence & Data Science
-    if any(ai_term in msg_lower for ai_term in ["ai", "llm", "gemini", "gpt", "model", "neural", "machine learning", "prompt", "agent", "transformer", "rag"]):
+    # 16. Artificial Intelligence & Data Science (Excluding simple "agent" queries)
+    if any(ai_term in msg_lower for ai_term in ["llm", "gemini", "gpt", "neural", "machine learning", "prompt engineering", "transformer", "rag"]):
         return (
             f"### 🤖 AI & Machine Learning Insights\n\n"
             f"**Query Topic**: `{user_message}`\n\n"
@@ -367,7 +425,7 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             f"- **Safety & Guardrails**: System prompts enforce constraint boundaries, preventing hallucinated prices or out-of-scope commitments."
         )
 
-    # 8. Mathematics & Game Theory
+    # 17. Mathematics & Game Theory
     if any(m_term in msg_lower for m_term in ["math", "game theory", "nash", "equilibrium", "probability", "statistics", "algebra", "calculus", "equation"]):
         return (
             f"### 📐 Mathematics & Strategic Game Theory\n\n"
@@ -377,19 +435,19 @@ def deterministic_fallback_response(user_message: str, context_mode: str, negoti
             f"- **Utility Optimization**: Agents optimize utility function: `U = (Target_Price - Offer_Price) * Weight_Price + Strategy_Bonus`."
         )
 
-    # 9. General Knowledge & Universal Answers
+    # 18. General Knowledge & Guide Topics
     for topic in GUIDE_KNOWLEDGE_BASE["topics"]:
         if any(w in msg_lower for w in topic["id"].split("_")) or topic["name"].lower() in msg_lower:
             return f"### {topic['name']}\n{topic['details']}"
 
-    # 10. Comprehensive Universal Fallback for any user input
+    # 19. Clean, Informative Direct Answer for Any Query
     return (
         f"### 🤖 NegoMind AI Assistant\n\n"
-        f"**Answer for**: *\"{user_message}\"*\n\n"
-        f"I am your general-purpose AI expert. Here is a clear summary regarding your topic:\n\n"
-        f"1. **Core Concept**: Your request involves key strategic, technical, or general domain principles.\n"
-        f"2. **NegoMind AI Integration**: Our system combines generative AI reasoning (Google Gemini) with deterministic backend constraints to evaluate user questions and negotiation dynamics.\n"
-        f"3. **Next Actions**: You can ask for code examples, mathematical formulas, strategic advice, or platform walkthroughs!\n\n"
+        f"Thank you for your question: *\"{user_message}\"*\n\n"
+        f"I am your general-purpose AI expert. Here is helpful context for your query:\n\n"
+        f"1. **Overview**: In NegoMind AI, autonomous agents simulate realistic negotiations (Vendor Pricing, Salary, Real Estate, Service Contracts) using strategic policies (**Aggressive**, **Collaborative**, **Risk-Averse**).\n"
+        f"2. **Guardrail Protection**: Out-of-bound proposals are automatically clamped to maintain realistic bargaining bounds (ZOPA).\n"
+        f"3. **What You Can Ask Me**: Ask me about negotiation concepts (ZOPA, BATNA), scenario creation, technical architecture, coding, math, or system diagnostics!\n\n"
         f"*Need more detail? Feel free to ask a follow-up question!*"
     )
 
