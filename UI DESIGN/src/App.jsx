@@ -13,6 +13,7 @@ import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import AuthPage from "./pages/AuthPage";
 import LandingPage from "./pages/LandingPage.jsx";
+import NegotiationScenariosView from "./components/scenarios/NegotiationScenariosView";
 import GuideBot from "./components/GuideBot.jsx";
 import { useNegotiationEngine } from "./hooks/useNegotiationEngine.js";
 import { useNegotiationHistory } from "./hooks/useNegotiationHistory.js";
@@ -125,6 +126,21 @@ function MainAppContent() {
               history={history}
               stats={stats}
               onClearHistory={clearHistory}
+            />
+          </div>
+        );
+
+      case "Negotiation Scenarios":
+      case "Scenarios":
+        return (
+          <div data-guide="scenarios-shell" className="flex-1 overflow-y-auto">
+            <NegotiationScenariosView
+              onSelectScenario={(scen) => {
+                setActiveScenario(scen);
+              }}
+              onNavigate={setActivePage}
+              userId={userId}
+              isDark={isDark}
             />
           </div>
         );

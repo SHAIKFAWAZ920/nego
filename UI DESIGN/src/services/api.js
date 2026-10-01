@@ -279,3 +279,57 @@ export async function fetchNegotiationsList(userId = null) {
   return await response.json();
 }
 
+/**
+ * Custom Scenarios API helper functions
+ */
+export async function fetchCustomScenarios(userId = null) {
+  const url = userId ? `${API_BASE_URL}/custom-scenarios?user_id=${encodeURIComponent(userId)}` : `${API_BASE_URL}/custom-scenarios`;
+  const response = await fetch(url, { headers: { ...getAuthHeaders() } });
+  if (!response.ok) throw new Error("Failed to fetch custom scenarios.");
+  return await response.json();
+}
+
+export async function createCustomScenario(scenarioData) {
+  const response = await fetch(`${API_BASE_URL}/custom-scenarios`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+    body: JSON.stringify(scenarioData)
+  });
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Failed to create custom scenario: ${errText}`);
+  }
+  return await response.json();
+}
+
+export async function updateCustomScenario(id, scenarioData) {
+  const response = await fetch(`${API_BASE_URL}/custom-scenarios/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...getAuthHeaders() },
+    body: JSON.stringify(scenarioData)
+  });
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Failed to update custom scenario: ${errText}`);
+  }
+  return await response.json();
+}
+
+export async function duplicateCustomScenario(id) {
+  const response = await fetch(`${API_BASE_URL}/custom-scenarios/${id}/duplicate`, {
+    method: "POST",
+    headers: { ...getAuthHeaders() }
+  });
+  if (!response.ok) throw new Error("Failed to duplicate custom scenario.");
+  return await response.json();
+}
+
+export async function deleteCustomScenario(id) {
+  const response = await fetch(`${API_BASE_URL}/custom-scenarios/${id}`, {
+    method: "DELETE",
+    headers: { ...getAuthHeaders() }
+  });
+  if (!response.ok) throw new Error("Failed to delete custom scenario.");
+  return await response.json();
+}
+

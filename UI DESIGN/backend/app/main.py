@@ -6,7 +6,8 @@ from app.config import settings
 from app.database import Base, engine
 from app.models.user import User, OTPToken  # Ensure SQLAlchemy registers user & otp models
 from app.models.chat import ChatConversationModel, ChatMessageModel # Register chat models
-from app.api import agents, negotiations, scenarios, analytics, guide, auth, chat
+from app.models.custom_scenario import CustomScenarioModel # Register custom scenario models
+from app.api import agents, negotiations, scenarios, analytics, guide, auth, chat, custom_scenarios
 
 # Setup logging
 logging.basicConfig(
@@ -60,6 +61,7 @@ app.include_router(auth.router)
 app.include_router(agents.router)
 app.include_router(negotiations.router)
 app.include_router(scenarios.router)
+app.include_router(custom_scenarios.router)
 app.include_router(analytics.router)
 app.include_router(analytics.analytics_router)
 app.include_router(guide.router)

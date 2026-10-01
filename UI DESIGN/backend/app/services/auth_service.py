@@ -31,10 +31,29 @@ def verify_password(password: str, stored_password_hash: str) -> bool:
         logger.error(f"Error verifying password: {e}")
         return False
 
-# Token Generation
+# Token Generation & Helper Utilities
 def generate_session_token(user_id: int, email: str) -> str:
     random_str = secrets.token_urlsafe(32)
     return f"nego_token_{user_id}_{random_str}"
+
+def extract_token_from_header(authorization_header: Optional[str]) -> Optional[str]:
+    if not authorization_header:
+        return None
+    header_parts = authorization_header.strip().split()
+    if len(header_parts) == 2 and header_parts[0].lower() == "bearer":
+        return header_parts[1]
+    if len(header_parts) == 1:
+        return header_parts[0]
+    return None
+
+def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
+    if not token or not isinstance(token, str):
+        return None
+    if token.startswith("nego_token_"):
+        parts = token.split("_")
+        if len(parts) >= 3:
+            return {"sub": parts[2], "user_id": parts[2]}
+    return {"sub": token}
 
 # OTP Generation & Dispatch
 def create_otp_for_email(db: Session, email: str, purpose: str = "signup", name: str = "User") -> Tuple[str, bool]:
