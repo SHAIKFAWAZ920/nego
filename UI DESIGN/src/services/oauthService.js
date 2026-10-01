@@ -53,7 +53,7 @@ function loadGoogleGisScript() {
  */
 export async function startGoogleSignIn() {
   const config = await getOauthConfig();
-  const googleClientId = config.google_client_id;
+  const googleClientId = config.google_client_id || "1020175991005-aci29ngmc4u3c2227i4d3ct6t3c8dj20.apps.googleusercontent.com";
 
   if (!googleClientId) {
     throw new Error("Google Client ID is not configured on the backend.");
