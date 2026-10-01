@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     LLM_PROVIDER: str = "gemini"
     LLM_API_KEY: str = ""
-    LLM_MODEL: str = "gemini-3.5-flash-lite"
+    LLM_MODEL: str = "gemini-1.5-flash"
     DATABASE_URL: str = "sqlite:///./negotiation.db"
     PORT: int = 8000
     HOST: str = "0.0.0.0"

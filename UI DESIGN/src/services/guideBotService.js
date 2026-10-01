@@ -50,7 +50,45 @@ export function getNavigationSuggestion(pageName = "Dashboard") {
   return context.suggestions || guideKnowledgeBase.default.suggestions;
 }
 
+function tryEvaluateMath(question) {
+  if (!question) return null;
+  let cleaned = String(question).replace(/[?!,]/g, "");
+  cleaned = cleaned
+    .replace(/\b(what\s+is|calculate|compute|eval|solve|equals|ans|result|find)\b/gi, "")
+    .replace(/\^/g, "**")
+    .trim();
+
+  if (/^[\d\.\s\+\-\*\/\%\(\)]+$/.test(cleaned) && /[\+\-\*\/\%]/.test(cleaned)) {
+    try {
+      const fn = new Function(`"use strict"; return (${cleaned});`);
+      const val = fn();
+      if (typeof val === "number" && !isNaN(val)) {
+        if (!isFinite(val)) {
+          return {
+            message: `### 📐 Calculation Result\n\n**Expression**: \`${cleaned.replace(/\*\*/g, "^")}\`\n**Error**: Division by zero is undefined.`,
+            suggestions: ["Calculate another formula", "What is ZOPA?", "Explain concession tracking"]
+          };
+        }
+        const displayVal = Number.isInteger(val) ? val : parseFloat(val.toFixed(6));
+        return {
+          message:
+            `### 📐 Calculation Result\n\n` +
+            `**Expression**: \`${cleaned.replace(/\*\*/g, "^")}\`\n` +
+            `**Result**: **\`${displayVal}\`**`,
+          suggestions: ["Calculate another formula", "What is ZOPA?", "Explain concession tracking"]
+        };
+      }
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
 export function buildGuideResponse(question, pageName = "Dashboard") {
+  const mathResult = tryEvaluateMath(question);
+  if (mathResult) return mathResult;
+
   const pageContext = getPageContext(pageName);
   const intent = detectIntent(question);
   const normalized = normalizeQuestion(question);

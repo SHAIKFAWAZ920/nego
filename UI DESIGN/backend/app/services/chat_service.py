@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import logging
 import asyncio
@@ -142,15 +143,69 @@ STRICT RULES & CONSTRAINTS:
 
     return base_prompt
 
+def try_evaluate_math(user_message: str) -> Optional[str]:
+    """
+    Safely parses and evaluates basic arithmetic operations in user messages.
+    Supports +, -, *, /, %, **, ^, parenthesized expressions, and common natural language math prompts.
+    """
+    cleaned = re.sub(r"[?!,]", "", user_message)
+    cleaned = re.sub(r"(?i)\b(what\s+is|calculate|compute|eval|solve|equals|ans|result|find)\b", "", cleaned).strip()
+    expr = cleaned.replace("^", "**")
+    
+    if re.match(r"^[\d\.\s\+\-\*\/\%\(\)]+$", expr) and any(op in expr for op in ["+", "-", "*", "/", "%"]):
+        try:
+            import ast
+            import operator as op
+
+            operators = {
+                ast.Add: op.add, ast.Sub: op.sub, ast.Mult: op.mul,
+                ast.Div: op.truediv, ast.Mod: op.mod, ast.Pow: op.pow,
+                ast.USub: op.neg, ast.UAdd: op.pos
+            }
+
+            def eval_node(node):
+                if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+                    return node.value
+                elif isinstance(node, ast.BinOp):
+                    left = eval_node(node.left)
+                    right = eval_node(node.right)
+                    return operators[type(node.op)](left, right)
+                elif isinstance(node, ast.UnaryOp):
+                    operand = eval_node(node.operand)
+                    return operators[type(node.op)](operand)
+                else:
+                    raise ValueError("Unsupported AST node")
+
+            parsed = ast.parse(expr, mode='eval').body
+            val = eval_node(parsed)
+            if isinstance(val, float) and val.is_integer():
+                val = int(val)
+            elif isinstance(val, float):
+                val = round(val, 6)
+            return (
+                f"### 📐 Calculation Result\n\n"
+                f"**Expression**: `{cleaned}`\n"
+                f"**Result**: **`{val}`**"
+            )
+        except ZeroDivisionError:
+            return f"### 📐 Calculation Result\n\n**Expression**: `{cleaned}`\n**Error**: Division by zero is undefined."
+        except Exception:
+            return None
+    return None
+
 def deterministic_fallback_response(user_message: str, context_mode: str, negotiation_context: Optional[Dict[str, Any]] = None) -> str:
     """
     Deterministic rule-based fallback response when Gemini LLM is offline/mock.
     Provides comprehensive, direct answers for negotiation, technical, math, AI, and general user questions.
     """
+    # 0. Math Evaluation
+    math_result = try_evaluate_math(user_message)
+    if math_result:
+        return math_result
+
     msg_lower = user_message.lower()
 
     # 1. Greetings (Exact word boundary check to prevent false positives)
-    import re
     if re.search(r"\b(hi|hello|hey|greetings|good morning|good afternoon|good evening)\b", msg_lower):
         return (
             "### 👋 Hello & Welcome!\n"
@@ -435,36 +490,48 @@ async def process_chat_query(
 
     if provider == "gemini" and _is_valid_api_key(api_key, provider):
         async def _call_gemini() -> str:
+            models_to_try = [requested_model]
+            if "gemini-1.5-flash" not in models_to_try:
+                models_to_try.append("gemini-1.5-flash")
+            if "gemini-2.0-flash" not in models_to_try:
+                models_to_try.append("gemini-2.0-flash")
+
             # 1. Try modern google-genai SDK
             try:
                 genai_pkg = importlib.import_module("google.genai")
                 client = genai_pkg.Client(api_key=api_key)
-                
-                # Format message contents
                 contents = f"System Instructions:\n{system_prompt}\n\nUser Question:\n{user_msg_clean}"
-                res = await asyncio.to_thread(client.models.generate_content, model=requested_model, contents=contents)
-                if res and hasattr(res, "text") and res.text:
-                    return res.text.strip()
+                
+                for target_m in models_to_try:
+                    try:
+                        res = await asyncio.to_thread(client.models.generate_content, model=target_m, contents=contents)
+                        if res and hasattr(res, "text") and res.text:
+                            return res.text.strip()
+                    except Exception as exc_m:
+                        logger.warning(f"google.genai call to '{target_m}' failed: {exc_m}")
             except Exception as exc1:
-                logger.debug(f"google.genai call failed: {exc1}")
+                logger.debug(f"google.genai package init failed: {exc1}")
 
             # 2. Try legacy google.generativeai SDK
             try:
                 genai_legacy = importlib.import_module("google.generativeai")
                 genai_legacy.configure(api_key=api_key)
-                gmodel = genai_legacy.GenerativeModel(requested_model)
                 
-                # Build chat prompt with memory
                 full_prompt = f"{system_prompt}\n\nRecent Conversation:\n"
-                for h in formatted_history[:-1]:  # exclude latest since appended below
+                for h in formatted_history[:-1]:
                     full_prompt += f"{h['role'].capitalize()}: {h['content']}\n"
                 full_prompt += f"User: {user_msg_clean}\nAssistant:"
-                
-                res = await asyncio.to_thread(gmodel.generate_content, full_prompt)
-                if res and hasattr(res, "text") and res.text:
-                    return res.text.strip()
+
+                for target_m in models_to_try:
+                    try:
+                        gmodel = genai_legacy.GenerativeModel(target_m)
+                        res = await asyncio.to_thread(gmodel.generate_content, full_prompt)
+                        if res and hasattr(res, "text") and res.text:
+                            return res.text.strip()
+                    except Exception as exc_m:
+                        logger.warning(f"google.generativeai call to '{target_m}' failed: {exc_m}")
             except Exception as exc2:
-                logger.warning(f"Gemini API call failed: {exc2}")
+                logger.warning(f"google.generativeai package init failed: {exc2}")
 
             return ""
 
