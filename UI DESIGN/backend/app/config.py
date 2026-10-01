@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     SMTP_FROM_EMAIL: str = "NegoMind AI <noreply@negomind.ai>"
 
     # Real Google OAuth Configuration
-    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_ID: str = "640684974355-3q8rkhfj19forn17n4mr9ofi3doi2re1.apps.googleusercontent.com"
     GOOGLE_CLIENT_SECRET: str = ""
 
     # Real GitHub OAuth Configuration

@@ -19,7 +19,7 @@ export async function getOauthConfig() {
     console.warn("Could not load backend OAuth config:", err);
   }
   return {
-    google_client_id: "1020175991005-aci29ngmc4u3c2227i4d3ct6t3c8dj20.apps.googleusercontent.com",
+    google_client_id: "640684974355-3q8rkhfj19forn17n4mr9ofi3doi2re1.apps.googleusercontent.com",
     github_client_id: "Ov23liGUUoaQ4lwt12Cm",
   };
 }
@@ -53,7 +53,7 @@ function loadGoogleGisScript() {
  */
 export async function startGoogleSignIn() {
   const config = await getOauthConfig();
-  const googleClientId = config.google_client_id || "1020175991005-aci29ngmc4u3c2227i4d3ct6t3c8dj20.apps.googleusercontent.com";
+  const googleClientId = config.google_client_id || "640684974355-3q8rkhfj19forn17n4mr9ofi3doi2re1.apps.googleusercontent.com";
 
   if (!googleClientId) {
     throw new Error("Google Client ID is not configured on the backend.");
