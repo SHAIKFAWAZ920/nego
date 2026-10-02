@@ -19,8 +19,13 @@ import { useNegotiationEngine } from "./hooks/useNegotiationEngine.js";
 import { useNegotiationHistory } from "./hooks/useNegotiationHistory.js";
 
 export default function App() {
-  const isOauthCallback = window.location.pathname.includes("/oauth/callback") ||
-    (window.opener && (window.location.search.includes("code=") || window.location.hash.includes("access_token")));
+  const isOauthCallback = Boolean(window.opener) && (
+    window.location.pathname.includes("/oauth/callback") ||
+    window.location.pathname.includes("/auth/callback") ||
+    window.location.search.includes("code=") ||
+    window.location.search.includes("token=") ||
+    window.location.hash.includes("access_token")
+  );
 
   if (isOauthCallback) {
     return <OAuthCallbackHandler />;

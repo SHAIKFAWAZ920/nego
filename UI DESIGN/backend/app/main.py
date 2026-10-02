@@ -32,8 +32,11 @@ def init_db():
                     conn.execute(text("ALTER TABLE negotiations ADD COLUMN human_role VARCHAR(50)"))
                 if "user_id" not in columns:
                     conn.execute(text("ALTER TABLE negotiations ADD COLUMN user_id VARCHAR(255)"))
-                if "deadlock_info_json" not in columns:
-                    conn.execute(text("ALTER TABLE negotiations ADD COLUMN deadlock_info_json TEXT"))
+        if "users" in inspector.get_table_names():
+            user_cols = [c["name"] for c in inspector.get_columns("users")]
+            with engine.connect() as conn:
+                if "provider_user_id" not in user_cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN provider_user_id VARCHAR(255)"))
                 conn.commit()
     except Exception as e:
         logger.error(f"Database initialization notice (check connection parameters in .env): {e}")

@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./negotiation.db"
     PORT: int = 8000
     HOST: str = "0.0.0.0"
-    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,*"
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000"
 
     # External Vercel Mail Service Configuration
     MAIL_SERVICE_URL: str = "https://otp-mail-service.vercel.app/api/send-otp"
@@ -23,8 +23,9 @@ class Settings(BaseSettings):
     SMTP_FROM_EMAIL: str = "NegoMind AI <noreply@negomind.ai>"
 
     # Real Google OAuth Configuration
-    GOOGLE_CLIENT_ID: str = "640684974355-3q8rkhfj19forn17n4mr9ofi3doi2re1.apps.googleusercontent.com"
+    GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/auth/google/callback"
 
     # Real GitHub OAuth Configuration
     GITHUB_CLIENT_ID: str = ""

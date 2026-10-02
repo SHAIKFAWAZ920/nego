@@ -111,6 +111,39 @@ def verify_otp_code(db: Session, email: str, code: str) -> Tuple[bool, str]:
     db.commit()
     return True, "OTP verified successfully."
 
+import time
+
+_oauth_states: Dict[str, Dict[str, Any]] = {}
+
+def generate_oauth_state(provider: str = "google") -> str:
+    """
+    Generates a cryptographically secure OAuth state parameter and stores it with a 15-minute TTL.
+    """
+    state = secrets.token_urlsafe(32)
+    now = time.time()
+    # Prune expired states (> 15 mins)
+    expired_keys = [k for k, v in _oauth_states.items() if now - v.get("created_at", 0) > 900]
+    for k in expired_keys:
+        _oauth_states.pop(k, None)
+
+    _oauth_states[state] = {"created_at": now, "provider": provider}
+    return state
+
+def validate_oauth_state(state: str, provider: str = "google") -> bool:
+    """
+    Validates and consumes an OAuth state parameter (one-time use).
+    """
+    if not state or not isinstance(state, str):
+        return False
+    state_entry = _oauth_states.pop(state, None)
+    if not state_entry:
+        return False
+    if time.time() - state_entry.get("created_at", 0) > 900:
+        return False
+    if state_entry.get("provider") != provider:
+        return False
+    return True
+
 # Real Google OAuth Token & Code Verification
 async def verify_google_oauth_token(id_token_or_access_token: str, redirect_uri: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
@@ -132,6 +165,7 @@ async def verify_google_oauth_token(id_token_or_access_token: str, redirect_uri:
                 email = data.get("email")
                 if email:
                     return {
+                        "sub": data.get("sub"),
                         "email": email,
                         "full_name": data.get("name") or data.get("given_name") or email.split("@")[0],
                         "avatar_url": data.get("picture"),
@@ -146,6 +180,7 @@ async def verify_google_oauth_token(id_token_or_access_token: str, redirect_uri:
                 email2 = data2.get("email")
                 if email2:
                     return {
+                        "sub": data2.get("sub"),
                         "email": email2,
                         "full_name": data2.get("name") or email2.split("@")[0],
                         "avatar_url": data2.get("picture"),
@@ -160,7 +195,7 @@ async def verify_google_oauth_token(id_token_or_access_token: str, redirect_uri:
                     "client_id": settings.GOOGLE_CLIENT_ID,
                     "client_secret": settings.GOOGLE_CLIENT_SECRET,
                     "grant_type": "authorization_code",
-                    "redirect_uri": redirect_uri or "http://localhost:5173/oauth/callback/google"
+                    "redirect_uri": redirect_uri or settings.GOOGLE_REDIRECT_URI
                 }
                 res3 = await client.post(token_exchange_url, data=exchange_data)
                 if res3.status_code == 200:
@@ -168,9 +203,9 @@ async def verify_google_oauth_token(id_token_or_access_token: str, redirect_uri:
                     access_tok = tok_res.get("access_token")
                     id_tok = tok_res.get("id_token")
                     if id_tok:
-                        return await verify_google_oauth_token(id_tok, redirect_uri)
+                        return await verify_google_oauth_token(id_tok, redirect_uri or settings.GOOGLE_REDIRECT_URI)
                     elif access_tok:
-                        return await verify_google_oauth_token(access_tok, redirect_uri)
+                        return await verify_google_oauth_token(access_tok, redirect_uri or settings.GOOGLE_REDIRECT_URI)
     except Exception as exc:
         logger.error(f"Google OAuth token verification failed: {exc}")
 
@@ -239,6 +274,7 @@ async def exchange_github_oauth_code(code_or_token: str, redirect_uri: Optional[
 
             if email:
                 return {
+                    "sub": str(github_user.get("id")) if github_user.get("id") else None,
                     "email": email,
                     "full_name": github_user.get("name") or github_user.get("login"),
                     "avatar_url": github_user.get("avatar_url"),
@@ -273,6 +309,12 @@ def generate_random_avatar(seed_text: Optional[str] = None) -> str:
 # User Operations
 def get_user_by_email(db: Session, email: str) -> Optional[User]:
     return db.query(User).filter(User.email == email.strip().lower()).first()
+
+def get_user_by_provider_id(db: Session, provider: str, provider_user_id: str) -> Optional[User]:
+    return db.query(User).filter(
+        User.auth_provider == provider.lower(),
+        User.provider_user_id == provider_user_id
+    ).first()
 
 def create_unverified_user(db: Session, full_name: str, email: str, password: str) -> User:
     email_clean = email.strip().lower()
@@ -317,21 +359,34 @@ def authenticate_or_create_oauth_user(
     provider: str,
     email: str,
     full_name: Optional[str] = None,
-    avatar_url: Optional[str] = None
+    avatar_url: Optional[str] = None,
+    provider_user_id: Optional[str] = None
 ) -> User:
     email_clean = email.strip().lower()
-    user = get_user_by_email(db, email_clean)
+    provider_clean = provider.lower()
+
+    user = None
+    if provider_user_id:
+        user = get_user_by_provider_id(db, provider_clean, provider_user_id)
+
+    if not user:
+        user = get_user_by_email(db, email_clean)
 
     name = full_name.strip() if full_name else email_clean.split("@")[0].capitalize()
-    random_avatar = generate_random_avatar(name)
+    avatar = avatar_url or generate_random_avatar(name)
 
     if user:
+        # Safe Account Linking: link provider_user_id if not present
+        if provider_user_id and not user.provider_user_id:
+            user.provider_user_id = provider_user_id
+
         # Update last login & verified status (OAuth emails are auto-verified)
         user.is_verified = True
         user.last_login = datetime.datetime.utcnow()
-        # Always replace Google/GitHub profile picture or missing avatar with random avatar
-        if not user.avatar_url or "googleusercontent" in user.avatar_url or "githubusercontent" in user.avatar_url:
-            user.avatar_url = random_avatar
+
+        if not user.avatar_url:
+            user.avatar_url = avatar
+
         db.commit()
         db.refresh(user)
         return user
@@ -340,9 +395,10 @@ def authenticate_or_create_oauth_user(
         email=email_clean,
         full_name=name,
         hashed_password=None,
-        auth_provider=provider.lower(),
+        auth_provider=provider_clean,
+        provider_user_id=provider_user_id,
         is_verified=True,
-        avatar_url=random_avatar
+        avatar_url=avatar
     )
     db.add(user)
     db.commit()
