@@ -678,6 +678,19 @@ export default function AuthPage({ onNavigate, initialMode = "signin" }) {
           <div className="relative z-10 flex h-full flex-col justify-between p-10 xl:p-16">
 
             <div className="max-w-xl">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/15 via-purple-500/15 to-blue-500/15 p-2 shadow-xl shadow-indigo-500/20">
+                  <img
+                    src="/logo-icon-transparent.png"
+                    alt="NegoMind AI"
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white">NegoMind <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">AI</span></h3>
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-widest text-indigo-300">THINK • NEGOTIATE • GROW</p>
+                </div>
+              </div>
 
               <p className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-emerald-400">
                 Autonomous negotiation systems

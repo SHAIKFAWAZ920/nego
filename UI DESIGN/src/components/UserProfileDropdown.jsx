@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 
-export default function UserProfileDropdown({ isDark }) {
+export default function UserProfileDropdown() {
   const { user, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -43,11 +43,7 @@ export default function UserProfileDropdown({ isDark }) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2.5 rounded-2xl border px-3 py-1.5 transition-all duration-200 cursor-pointer shadow-sm ${
-          isDark
-            ? "border-[#3A3945] bg-[#1E1D26] text-white hover:border-emerald-500/50 hover:bg-[#252430]"
-            : "border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200"
-        }`}
+        className="flex items-center gap-2.5 rounded-2xl border px-3 py-1.5 transition-all duration-200 cursor-pointer shadow-sm border-[#3A3945] bg-[#1E1D26] text-white hover:border-emerald-500/50 hover:bg-[#252430]"
       >
         <img
           src={avatarUrl}
@@ -78,13 +74,7 @@ export default function UserProfileDropdown({ isDark }) {
 
       {/* Popover Dropdown Card */}
       {isOpen && (
-        <div
-          className={`absolute right-0 top-12 z-50 w-72 rounded-2xl border p-4 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 ${
-            isDark
-              ? "border-[#323142] bg-[#14131D] text-white"
-              : "border-slate-200 bg-white text-slate-900"
-          }`}
-        >
+        <div className="absolute right-0 top-12 z-50 w-72 rounded-2xl border p-4 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 border-[#323142] bg-[#14131D] text-white">
           {/* User Details Header */}
           <div className="flex items-center gap-3 pb-3 border-b border-[#252435]">
             <img

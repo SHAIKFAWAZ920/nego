@@ -362,11 +362,20 @@ export const StaggeredMenu = ({
         <div className="sm-panel-inner">
           {/* Header inside Panel */}
           <div className="sm-panel-heading flex items-center justify-between">
-            <div>
-              <p className="sm-panel-eyebrow">Negotiation Control Hub</p>
-              <h2 className="sm-panel-title">
-                NegoMind <span>AI</span>
-              </h2>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-blue-500/10 p-1 shadow-md shadow-indigo-500/10">
+                <img
+                  src="/logo-icon-transparent.png"
+                  alt="NegoMind AI Logo"
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <div>
+                <p className="sm-panel-eyebrow">Negotiation Control Hub</p>
+                <h2 className="sm-panel-title">
+                  NegoMind <span>AI</span>
+                </h2>
+              </div>
             </div>
             <button
               type="button"

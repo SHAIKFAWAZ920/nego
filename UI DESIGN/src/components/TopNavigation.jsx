@@ -5,44 +5,37 @@ import UserProfileDropdown from "./UserProfileDropdown";
 export default function TopNavigation({
   onMenuToggle,
   isMenuOpen,
-  theme,
-  onThemeChange,
   activePage,
   onNavigate,
   onReplayIntro,
   onOpenAuthModal,
 }) {
-  const isDark = theme === "dark";
   const { isAuthenticated } = useAuth();
 
   return (
     <header className="sticky top-0 z-30 flex flex-col transition-colors duration-200">
       {/* Top Navbar Main Header */}
-      <div
-        className={`flex h-16 items-center justify-between border-b px-3 sm:px-6 ${
-          isDark
-            ? "border-[#1F1E26] bg-[#0C0C0F]"
-            : "border-slate-200 bg-white"
-        }`}
-      >
+      <div className="flex h-16 items-center justify-between border-b px-3 sm:px-6 border-[#1F1E26] bg-[#0C0C0F]">
         {/* Left side - Logo & Project Title */}
         <div
           className="flex items-center gap-2.5 cursor-pointer"
           onClick={() => onNavigate && onNavigate(isAuthenticated ? "Dashboard" : "Landing")}
         >
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-950 shadow-md font-bold">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-            </svg>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-blue-500/10 p-1 shadow-md shadow-indigo-500/10 transition-transform duration-200 hover:scale-105">
+            <img
+              src="/logo-icon-transparent.png"
+              alt="NegoMind AI Logo"
+              className="h-full w-full object-contain"
+            />
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <p className={`text-base font-black tracking-tight font-sans ${isDark ? "text-white" : "text-slate-900"}`}>
-                NegoMind <span className="text-slate-200 font-black">AI</span>
+              <p className="text-base font-black tracking-tight font-sans text-white">
+                NegoMind <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent font-black">AI</span>
               </p>
             </div>
-            <p className={`text-[10px] font-semibold tracking-wider hidden md:block ${isDark ? "text-[#71707E]" : "text-slate-500"}`}>
+            <p className="text-[10px] font-semibold tracking-wider hidden md:block text-[#71707E]">
               AI-Driven Multi-Agent Negotiation Training & Simulation Platform
             </p>
           </div>
@@ -50,10 +43,10 @@ export default function TopNavigation({
 
         {/* Right side - Actions & Status */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {isAuthenticated && <LlmStatusBadge isDark={isDark} />}
+          {isAuthenticated && <LlmStatusBadge />}
 
           {isAuthenticated ? (
-            <UserProfileDropdown isDark={isDark} />
+            <UserProfileDropdown />
           ) : (
             <button
               type="button"
@@ -70,13 +63,7 @@ export default function TopNavigation({
           )}
 
           {isAuthenticated && (
-            <div
-              className={`hidden sm:inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-mono font-bold tracking-wider uppercase ${
-                isDark
-                  ? "border-[#3A3944] bg-[#222129] text-slate-200"
-                  : "border-slate-300 bg-slate-100 text-slate-800"
-              }`}
-            >
+            <div className="hidden sm:inline-flex items-center rounded-xl border px-3 py-1.5 text-xs font-mono font-bold tracking-wider uppercase border-[#3A3944] bg-[#222129] text-slate-200">
               TEAM 4
             </div>
           )}
@@ -85,13 +72,7 @@ export default function TopNavigation({
 
       {/* Sub-Navbar Breadcrumb & Menu Bar (Below Main Navbar) */}
       {isAuthenticated && (
-        <div
-          className={`flex h-11 items-center justify-between border-b px-3 sm:px-6 transition-colors duration-200 ${
-            isDark
-              ? "border-[#1F1E26] bg-[#121117]"
-              : "border-slate-200 bg-slate-100"
-          }`}
-        >
+        <div className="flex h-11 items-center justify-between border-b px-3 sm:px-6 transition-colors duration-200 border-[#1F1E26] bg-[#121117]">
           <div className="flex items-center gap-3">
             {/* Menu Toggle Button */}
             <button
@@ -100,9 +81,7 @@ export default function TopNavigation({
               className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-all duration-200 shadow-sm active:scale-95 cursor-pointer text-xs font-bold ${
                 isMenuOpen
                   ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-400"
-                  : isDark
-                  ? "border-[#3A3945] bg-[#1E1D26] text-slate-200 hover:border-slate-300 hover:bg-[#272632]"
-                  : "border-slate-300 bg-slate-200 text-slate-800 hover:bg-slate-300"
+                  : "border-[#3A3945] bg-[#1E1D26] text-slate-200 hover:border-slate-300 hover:bg-[#272632]"
               }`}
               aria-label="Toggle Navigation Menu"
               title="Toggle Navigation Menu"

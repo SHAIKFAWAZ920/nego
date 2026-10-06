@@ -21,7 +21,6 @@ export default function CustomScenarioBuilder({
   onClose,
   onSaveSuccess,
   onStartNegotiation,
-  isDark = true
 }) {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -291,7 +290,7 @@ export default function CustomScenarioBuilder({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-3 sm:p-6 backdrop-blur-md overflow-y-auto">
-      <div className={`w-full max-w-4xl rounded-2xl border p-5 sm:p-8 shadow-2xl transition-all my-auto max-h-[92vh] flex flex-col ${isDark ? "border-[#2A2935] bg-[#121118] text-white" : "border-slate-300 bg-white text-slate-900"}`}>
+      <div className="w-full max-w-4xl rounded-2xl border p-5 sm:p-8 shadow-2xl transition-all my-auto max-h-[92vh] flex flex-col border-[#2A2935] bg-[#121118] text-white">
         
         {/* Header */}
         <div className="flex items-center justify-between border-b pb-4 border-white/10">

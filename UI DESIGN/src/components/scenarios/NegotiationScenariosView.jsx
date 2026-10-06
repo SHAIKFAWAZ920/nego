@@ -53,7 +53,6 @@ export default function NegotiationScenariosView({
   onSelectScenario,
   onNavigate,
   userId = null,
-  isDark = true
 }) {
   const [activeTab, setActiveTab] = useState("all"); // 'all', 'existing', 'more', 'custom'
   const [searchQuery, setSearchQuery] = useState("");
@@ -188,7 +187,7 @@ export default function NegotiationScenariosView({
   };
 
   return (
-    <div className={`min-h-full w-full p-4 sm:p-8 ${isDark ? "bg-[#0C0C0F] text-white" : "bg-slate-50 text-slate-900"}`}>
+    <div className="min-h-full w-full p-4 sm:p-8 bg-[#0C0C0F] text-white">
       {/* Top Banner / Header */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
@@ -295,7 +294,6 @@ export default function NegotiationScenariosView({
                 key={s.scenario_id}
                 scenario={s}
                 onStart={() => handleStartScenario(s)}
-                isDark={isDark}
               />
             ))}
           </div>
@@ -318,7 +316,6 @@ export default function NegotiationScenariosView({
                 key={s.scenario_id}
                 scenario={s}
                 onStart={() => handleStartScenario(s)}
-                isDark={isDark}
               />
             ))}
           </div>
@@ -368,7 +365,6 @@ export default function NegotiationScenariosView({
                 onEdit={() => handleOpenBuilderEdit(s)}
                 onDuplicate={() => handleDuplicate(s.scenario_id)}
                 onDelete={() => setDeletingId(s.scenario_id)}
-                isDark={isDark}
               />
             ))}
           </div>
@@ -399,14 +395,12 @@ export default function NegotiationScenariosView({
                     onEdit={() => handleOpenBuilderEdit(s)}
                     onDuplicate={() => handleDuplicate(s.scenario_id)}
                     onDelete={() => setDeletingId(s.scenario_id)}
-                    isDark={isDark}
                   />
                 ) : (
                   <ScenarioCard
                     key={s.scenario_id}
                     scenario={s}
                     onStart={() => handleStartScenario(s)}
-                    isDark={isDark}
                   />
                 )
               )}
@@ -426,7 +420,6 @@ export default function NegotiationScenariosView({
             onSelectScenario?.(scen);
             if (onNavigate) onNavigate("Configure Agents");
           }}
-          isDark={isDark}
         />
       )}
 
@@ -460,12 +453,12 @@ export default function NegotiationScenariosView({
   );
 }
 
-function ScenarioCard({ scenario, onStart, isDark }) {
+function ScenarioCard({ scenario, onStart }) {
   const catColor = getCategoryColor(scenario.category);
   const icon = ScenarioIcon({ category: scenario.category });
 
   return (
-    <div className={`flex flex-col justify-between rounded-2xl border p-5 transition-all hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(52,211,153,0.15)] ${isDark ? "border-[#1F1E26] bg-[#121117]" : "border-slate-200 bg-white"}`}>
+    <div className="flex flex-col justify-between rounded-2xl border p-5 transition-all hover:border-emerald-500/50 hover:shadow-[0_0_20px_rgba(52,211,153,0.15)] border-[#1F1E26] bg-[#121117]">
       <div>
         <div className="flex items-center justify-between gap-2 mb-3">
           <span className="text-2xl">{icon}</span>
@@ -498,7 +491,7 @@ function ScenarioCard({ scenario, onStart, isDark }) {
   );
 }
 
-function CustomScenarioCard({ scenario, onStart, onEdit, onDuplicate, onDelete, isDark }) {
+function CustomScenarioCard({ scenario, onStart, onEdit, onDuplicate, onDelete }) {
   const catColor = getCategoryColor(scenario.category);
   const icon = ScenarioIcon({ category: scenario.category });
 

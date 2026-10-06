@@ -43,7 +43,6 @@ function MainAppContent() {
   const userId = user ? String(user.email || user.id) : null;
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [theme, setTheme] = useState("dark");
   const [activePage, setActivePage] = useState(() => (user ? "Dashboard" : "Landing"));
   const [activeScenario, setActiveScenario] = useState(null);
   const [loaderKey, setLoaderKey] = useState(1);
@@ -73,8 +72,6 @@ function MainAppContent() {
     setLoaderKey((prev) => prev + 1);
     setShowLoader(true);
   };
-
-  const isDark = theme === "dark";
 
   // Auto-record completed session to history when a negotiation completes
   useEffect(() => {
@@ -145,7 +142,6 @@ function MainAppContent() {
               }}
               onNavigate={setActivePage}
               userId={userId}
-              isDark={isDark}
             />
           </div>
         );
@@ -225,20 +221,7 @@ function MainAppContent() {
 
   return (
     <div
-      className={`
-        flex
-        h-screen
-        w-full
-        flex-col
-        overflow-hidden
-        transition-colors
-        duration-200
-        ${
-          isDark
-            ? "bg-[#0B0F17] text-[#F8FAFC]"
-            : "bg-[#F8FAFC] text-[#0F172A]"
-        }
-      `}
+      className="flex h-screen w-full flex-col overflow-hidden bg-[#0B0F17] text-[#F8FAFC]"
     >
       {showLoader && (
         <CinematicLoader
@@ -255,8 +238,6 @@ function MainAppContent() {
         <TopNavigation
           onMenuToggle={() => setSidebarOpen((value) => !value)}
           isMenuOpen={sidebarOpen}
-          theme={theme}
-          onThemeChange={setTheme}
           activePage={activePage}
           onNavigate={setActivePage}
           onReplayIntro={handleReplayIntro}

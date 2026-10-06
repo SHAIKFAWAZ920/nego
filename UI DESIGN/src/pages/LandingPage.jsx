@@ -182,6 +182,12 @@ export default function LandingPage({ onNavigate }) {
           className="grid min-h-[720px] items-center gap-10 py-10 lg:grid-cols-[1.05fr_0.95fr] lg:py-20"
         >
           <div>
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 mb-6 backdrop-blur-md shadow-sm">
+              <img src="/logo-icon-transparent.png" alt="NegoMind AI" className="h-5 w-5 object-contain" />
+              <span className="font-mono text-xs font-bold tracking-wider uppercase text-indigo-300">
+                THINK • NEGOTIATE • GROW
+              </span>
+            </div>
 
             <h1 className="max-w-3xl text-5xl font-black leading-[0.98] tracking-[-0.055em] text-white sm:text-6xl lg:text-7xl">
               Turn every negotiation into a{" "}

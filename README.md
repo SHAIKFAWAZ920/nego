@@ -2,7 +2,7 @@
 
 An academic and enterprise-grade multi-agent negotiation simulation and training platform featuring a **Python FastAPI backend**, **dual-mode reasoning engine** (Google Gemini LLM / OpenAI & Deterministic Rule Engine), **Role-Aware Concession Telemetry**, and a modern **React 19 + Vite frontend**.
 
-> 🔗 **GitHub Repository**: [https://github.com/hemalathabora/Infosys-AI-Negotiation](https://github.com/hemalathabora/Infosys-AI-Negotiation)
+> 🔗 **GitHub Repository**: [https://github.com/SHAIKFAWAZ920/nego](https://github.com/SHAIKFAWAZ920/nego)
 
 
 > 🔗 **Deployment link**:https://negomind-ai.vercel.app/

@@ -2,9 +2,9 @@
 
 Full-stack technical documentation for the **NegoMind AI** platform, covering the **React 19 + Vite Frontend**, **FastAPI Backend**, **LLM & Rule Reasoning Engines**, **Concession Telemetry**, and **Database Schema**.
 
-> 🔗 **GitHub Repository**: [https://github.com/hemalathabora/Infosys-AI-Negotiation](https://github.com/hemalathabora/Infosys-AI-Negotiation)
 
----
+
+> 🔗 **GitHub Repository**: [https://github.com/SHAIKFAWAZ920/nego](https://github.com/SHAIKFAWAZ920/nego)
 
 ## 🏗️ Core Architecture Overview
 
